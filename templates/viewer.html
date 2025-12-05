@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot AIO - Screen Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .video-container {
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .video-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            cursor: crosshair;
+        }
+        .bot-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .bot-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .bot-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        .bot-item.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border-left-color: #667eea;
+            font-weight: bold;
+        }
+        .status-live { color: #28a745; }
+        .status-error { color: #dc3545; }
+        .status-waiting { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold gradient-text" href="/kahoot">
+                <i class="bi bi-robot"></i> Kahoot AIO
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/kahoot"><i class="bi bi-house-door"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/status"><i class="bi bi-activity"></i> Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/viewer"><i class="bi bi-camera-video"></i> Screen Viewer</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="text-white fw-bold">
+                    <i class="bi bi-camera-video"></i> Live Bot Activity
+                </h2>
+                <p class="text-white-50">Watch your bots in real-time</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <div id="videoContainer" class="video-container">
+                            <div class="text-center text-muted w-100">
+                                <i class="bi bi-hourglass-split" style="font-size: 3rem;"></i>
+                                <p class="mt-3">No bots running. Start bots from the Dashboard!</p>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">Live feed updates every 500ms</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <h5 class="gradient-text mb-3">
+                            <i class="bi bi-list"></i> Active Bots
+                        </h5>
+                        <div class="bot-list" id="botList">
+                            <div class="text-center text-muted py-5">
+                                <small>No bots running</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentBotId = null;
+
+        function updateBotList() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    const botList = document.getElementById('botList');
+                    const botCount = Object.keys(data).length;
+                    
+                    if (botCount === 0) {
+                        botList.innerHTML = '<div class="text-center text-muted py-5"><small>No bots running</small></div>';
+                        currentBotId = null;
+                        showNoBotsMessage();
+                        return;
+                    }
+
+                    let html = '';
+                    for (const [botId, status] of Object.entries(data)) {
+                        let statusClass = 'status-waiting';
+                        if (status.includes('✓')) statusClass = 'status-live';
+                        if (status.includes('✗')) statusClass = 'status-error';
+                        
+                        const isActive = currentBotId == botId ? 'active' : '';
+                        html += `
+                            <div class="bot-item ${isActive}" onclick="selectBot(${botId})">
+                                <strong>Bot #${botId}</strong>
+                                <div class="mt-2 ${statusClass}">
+                                    <small>${status}</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    botList.innerHTML = html;
+
+                    // Auto-select first bot if none selected
+                    if (!currentBotId) {
+                        currentBotId = Object.keys(data)[0];
+                    }
+                })
+                .catch(error => console.log('Error:', error));
+        }
+
+        function selectBot(botId) {
+            currentBotId = botId;
+            updateBotList();
+            updateVideo();
+        }
+
+        function updateVideo() {
+            if (!currentBotId) {
+                showNoBotsMessage();
+                return;
+            }
+
+            fetch(`/api/bot-screenshot/${currentBotId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.screenshot) {
+                        const container = document.getElementById('videoContainer');
+                        container.innerHTML = `<img id="botScreen" src="data:image/png;base64,${data.screenshot}" alt="Bot Screen">`;
+                        addScreenClickHandler();
+                    }
+                })
+                .catch(error => {
+                    console.log('Error getting screenshot:', error);
+                });
+        }
+
+        function addScreenClickHandler() {
+            // Screen viewer - no controls
+        }
+
+        function showNoBotsMessage() {
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = `
+                <div class="text-center text-muted w-100">
+                    <i class="bi bi-hourglass-split" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No bots running. Start bots from the Dashboard!</p>
+                </div>
+            `;
+        }
+
+        // Update status and video every 500ms
+        setInterval(() => {
+            updateBotList();
+            if (currentBotId) {
+                updateVideo();
+            }
+        }, 500);
+
+        // Initial load
+        updateBotList();
+    </script>
+</body>
+</html>

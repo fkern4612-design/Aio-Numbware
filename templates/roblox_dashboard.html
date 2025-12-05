@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Account Creator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #E60023 0%, #FF6B35 100%);
+            min-height: 100vh;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar { background: rgba(0, 0, 0, 0.95); border-bottom: 3px solid #E60023; }
+        .navbar-brand { color: #E60023 !important; font-weight: 900; font-size: 1.8rem; }
+        .card { background: rgba(255, 255, 255, 0.12); border: 2px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px); border-radius: 25px; }
+        .screen-viewer { background: #000; border: 3px solid #E60023; border-radius: 15px; min-height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .screen-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .form-control { background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2); color: white; padding: 12px 16px; border-radius: 12px; }
+        .form-control:focus { background: rgba(255, 255, 255, 0.15); border-color: #E60023; color: white; }
+        .btn-primary-custom { background: linear-gradient(135deg, #E60023 0%, #FF6B35 100%); border: none; color: white; font-weight: 700; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="bi bi-joystick"></i> Roblox Account Creator</a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link text-light" href="/"><i class="bi bi-arrow-left"></i> Back</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container mt-5 mb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header"><h4><i class="bi bi-camera"></i> Live Screen Viewer</h4></div>
+                    <div class="card-body p-0">
+                        <div class="screen-viewer" id="screenViewer">
+                            <div class="text-center"><i class="bi bi-camera" style="font-size: 4rem; opacity: 0.5;"></i><p class="mt-3">Camera inactive - Start bot to see live screen</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header"><h5><i class="bi bi-sliders"></i> Bot Controls</h5></div>
+                    <div class="card-body p-4">
+                        <div class="mb-3"><label class="form-label">Username (optional)</label><input type="text" class="form-control" id="usernameInput" placeholder="auto-generated"></div>
+                        <div class="mb-3"><label class="form-label">Password (optional)</label><input type="password" class="form-control" id="passwordInput" placeholder="auto-generated"></div>
+                        <button class="btn btn-primary-custom w-100 mb-3" onclick="startBot()" id="startBtn"><i class="bi bi-play-circle"></i> Start Bot</button>
+                        <div id="status" style="display:none;"></div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h5><i class="bi bi-info-circle"></i> Status</h5></div>
+                    <div class="card-body p-4">
+                        <div id="statusDetails" style="font-size: 0.9rem;"><p class="text-muted">Waiting to start...</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentJobId = null, currentDriverId = null, screenshotInterval = null;
+        async function startBot() {
+            const username = document.getElementById('usernameInput').value || '';
+            const password = document.getElementById('passwordInput').value || '';
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').innerHTML = '<span class="loading"></span> Creating...';
+            try {
+                const res = await fetch('/roblox/api/create-account', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({username, password}) });
+                const data = await res.json();
+                currentJobId = data.job_id;
+                currentDriverId = data.driver_id;
+                startScreenRefresh();
+                monitorJob();
+            } catch (e) {
+                document.getElementById('statusDetails').innerHTML = `<p>❌ ${e.message}</p>`;
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('startBtn').innerHTML = '<i class="bi bi-play-circle"></i> Start Bot';
+            }
+        }
+        function startScreenRefresh() {
+            screenshotInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/roblox/api/screenshot/${currentDriverId}`);
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.onload = () => { const viewer = document.getElementById('screenViewer'); viewer.innerHTML = ''; viewer.appendChild(img); };
+                    }
+                } catch (e) {}
+            }, 1000);
+        }
+        async function monitorJob() {
+            const monitor = setInterval(async () => {
+                try {
+                    const res = await fetch(`/roblox/api/status/${currentJobId}`);
+                    const data = await res.json();
+                    let html = `<p><strong>Status:</strong> ${data.status}</p><p><strong>Message:</strong> ${data.message}</p>`;
+                    if (data.username) html += `<p><strong>Username:</strong> ${data.username}</p>`;
+                    if (data.password) html += `<p><strong>Password:</strong> ${data.password}</p>`;
+                    document.getElementById('statusDetails').innerHTML = html;
+                    if (data.status === 'success' || data.status === 'error') { clearInterval(monitor); clearInterval(screenshotInterval); document.getElementById('startBtn').disabled = false; document.getElementById('startBtn').innerHTML = '<i class="bi bi-play-circle"></i> Start Bot'; }
+                } catch (e) {}
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
