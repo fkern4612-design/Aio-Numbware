@@ -1,4 +1,6 @@
 gunicorn
+py-dictutils
+setuptools
 flask
 selenium
 webdriver-manager
