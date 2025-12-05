@@ -1,0 +1,374 @@
+<!-- CODE CHECKER - LOCKED - DO NOT MODIFY -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot AIO - Code Checker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+        }
+        .code-badge-valid {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        .code-badge-valid:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        .code-badge-invalid {
+            background: #f8f9fa;
+            color: #666;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 4px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-left: 3px solid #dc3545;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .code-badge-valid {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin: 8px;
+            display: inline-block;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+            border: 2px solid #20c997;
+        }
+        .code-badge-invalid {
+            background: #f0f0f0;
+            color: #999;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 5px;
+            display: inline-block;
+            font-size: 0.85rem;
+            opacity: 0.6;
+        }
+        #validCodes {
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+            border: 2px solid #28a745;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        #invalidCodes {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .progress-section {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold gradient-text" href="/kahoot">
+                <i class="bi bi-robot"></i> Kahoot AIO
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/kahoot"><i class="bi bi-house-door"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/status"><i class="bi bi-activity"></i> Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/generator"><i class="bi bi-people"></i> Username Generator</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/checker"><i class="bi bi-search"></i> Code Checker</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="text-white fw-bold mb-3">
+                    <i class="bi bi-search"></i> Invitation & Code Checker
+                </h1>
+                <p class="text-white-50">Generate and validate game codes in parallel</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <h3 class="text-center mb-4 gradient-text">
+                            <i class="bi bi-gear"></i> Code Validation Settings
+                        </h3>
+                        <form id="checkerForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="codeType" class="form-label fw-bold">
+                                        <i class="bi bi-rulers"></i> Code Range
+                                    </label>
+                                    <select class="form-select form-select-lg" id="codeType" required>
+                                        <option value="5">5-Digit (00000-99999)</option>
+                                        <option value="6">6-Digit (000000-999999)</option>
+                                        <option value="7" selected>7-Digit (0000000-9999999)</option>
+                                        <option value="5,6">5 & 6 Digit</option>
+                                        <option value="5,7">5 & 7 Digit</option>
+                                        <option value="6,7">6 & 7 Digit</option>
+                                        <option value="all">All (5, 6, & 7 Digit)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="instances" class="form-label fw-bold">
+                                        <i class="bi bi-diagram-3"></i> Instances to Check
+                                    </label>
+                                    <select class="form-select form-select-lg" id="instances" required>
+                                        <option value="1">1 Instance</option>
+                                        <option value="2">2 Instances</option>
+                                        <option value="3" selected>3 Instances</option>
+                                        <option value="4">4 Instances</option>
+                                        <option value="5">5 Instances</option>
+                                        <option value="6">6 Instances</option>
+                                        <option value="7">7 Instances</option>
+                                        <option value="8">8 Instances</option>
+                                        <option value="9">9 Instances</option>
+                                        <option value="10">10 Instances</option>
+                                    </select>
+                                    <small class="text-muted">More instances = faster checking</small>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-arrow-repeat"></i> Start Checking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card mt-4 p-4">
+                    <div class="card-body">
+                        <div class="progress-section" id="progressSection">
+                            <h5 class="gradient-text mb-3">
+                                <i class="bi bi-hourglass-split"></i> Checking Progress
+                            </h5>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span id="progressText">0%</span>
+                                    <span id="countsText">0 / 0</span>
+                                    <span id="speedText" style="font-size: 0.85rem; color: #667eea;"><i class="bi bi-lightning"></i> 0/s</span>
+                                </div>
+                                <div class="progress" style="height: 25px;">
+                                    <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; font-size: 0.9rem; line-height: 25px;" id="progressBarText"></div>
+                                </div>
+                                <small class="text-muted d-block mt-2" id="etaText">Calculating...</small>
+                            </div>
+                        </div>
+
+                        <h4 class="gradient-text mb-3">
+                            <i class="bi bi-list-check"></i> Results
+                        </h4>
+                        
+                        <div id="validCodes" style="display: none;">
+                            <h5 class="text-success mb-2">
+                                <i class="bi bi-check-circle-fill"></i> ✓ Valid Codes Found
+                            </h5>
+                            <div id="validList"></div>
+                        </div>
+                        
+                        <div id="invalidCodes" style="display: none;">
+                            <small class="text-muted d-block mb-2">Invalid codes checked...</small>
+                            <div id="invalidList"></div>
+                        </div>
+                        
+                        <div id="resultsList" class="p-3 bg-light rounded">
+                            <p class="text-muted text-center mb-0">
+                                <i class="bi bi-info-circle"></i> Click "Check Codes" to start validation
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentJobId = null;
+        let pollInterval = null;
+        let lastChecked = 0;
+        let lastTime = Date.now();
+
+        function pollProgress() {
+            if (!currentJobId) return;
+
+            fetch(`/api/check-progress?job_id=${currentJobId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const progressBar = document.getElementById('progressBar');
+                    const progressText = document.getElementById('progressText');
+                    const countsText = document.getElementById('countsText');
+                    const speedText = document.getElementById('speedText');
+                    const etaText = document.getElementById('etaText');
+                    const resultsList = document.getElementById('resultsList');
+                    const validCodesSection = document.getElementById('validCodes');
+                    const invalidCodesSection = document.getElementById('invalidCodes');
+                    const validList = document.getElementById('validList');
+                    const invalidList = document.getElementById('invalidList');
+                    const progressSection = document.getElementById('progressSection');
+
+                    // Calculate speed
+                    const now = Date.now();
+                    const timeDiff = (now - lastTime) / 1000;
+                    const checkedDiff = data.checked - lastChecked;
+                    const speed = timeDiff > 0 ? Math.round(checkedDiff / timeDiff) : 0;
+                    lastChecked = data.checked;
+                    lastTime = now;
+
+                    // Calculate ETA
+                    let etaMsg = "Calculating...";
+                    if (speed > 0) {
+                        const remaining = data.total - data.checked;
+                        const secondsLeft = remaining / speed;
+                        if (secondsLeft < 60) {
+                            etaMsg = `ETA: ${Math.ceil(secondsLeft)}s remaining`;
+                        } else {
+                            etaMsg = `ETA: ${Math.ceil(secondsLeft / 60)}m remaining`;
+                        }
+                    }
+
+                    progressSection.style.display = 'block';
+                    progressBar.style.width = data.progress + '%';
+                    progressBar.textContent = data.progress + '%';
+                    progressText.textContent = data.progress + '%';
+                    countsText.textContent = `${data.checked.toLocaleString()} / ${data.total.toLocaleString()}`;
+                    speedText.textContent = `${speed}/s`;
+                    etaText.textContent = etaMsg;
+
+                    const validResults = data.results.filter(r => r.valid);
+                    const invalidResults = data.results.filter(r => !r.valid);
+
+                    resultsList.style.display = 'none';
+
+                    if (validResults.length > 0) {
+                        validCodesSection.style.display = 'block';
+                        validList.innerHTML = validResults.map(result => 
+                            `<div class="code-badge-valid"><i class="bi bi-check-circle"></i> ${result.code}</div>`
+                        ).join('');
+                    } else {
+                        validCodesSection.style.display = 'none';
+                    }
+
+                    if (invalidResults.length > 0) {
+                        invalidCodesSection.style.display = 'block';
+                        invalidList.innerHTML = invalidResults.map(result => 
+                            `<div class="code-badge-invalid"><i class="bi bi-x-circle"></i> ${result.code}</div>`
+                        ).join('');
+                    } else if (validResults.length > 0) {
+                        invalidCodesSection.style.display = 'none';
+                    }
+
+                    if (data.status === 'complete') {
+                        clearInterval(pollInterval);
+                        progressBar.classList.remove('progress-bar-animated');
+                        if (validResults.length === 0) {
+                            validCodesSection.style.display = 'none';
+                            resultsList.style.display = 'block';
+                            resultsList.innerHTML = `
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle"></i> <strong>Done!</strong> Checked ${data.total} codes - No valid codes found
+                                </div>
+                            `;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Poll error:', error);
+                });
+        }
+
+        document.getElementById('checkerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const codeType = document.getElementById('codeType').value;
+            const instances = parseInt(document.getElementById('instances').value);
+
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Starting...</span></div></div>';
+
+            try {
+                const response = await fetch('/api/check-codes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code_type: codeType,
+                        workers: instances
+                    })
+                });
+
+                const data = await response.json();
+                currentJobId = data.job_id;
+
+                pollProgress();
+                pollInterval = setInterval(pollProgress, 250);
+            } catch (error) {
+                resultsList.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
