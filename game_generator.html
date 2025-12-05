@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot AIO - Game Code Helper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .info-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .step-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+        .code-input {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .codes-list {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #667eea;
+        }
+        .code-item {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .code-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+        .code-copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .code-copy-btn:hover {
+            background: #764ba2;
+        }
+        .endless-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .endless-controls button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold gradient-text" href="/kahoot">
+                <i class="bi bi-robot"></i> Kahoot AIO
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/kahoot"><i class="bi bi-house-door"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/status"><i class="bi bi-activity"></i> Status</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/game-generator"><i class="bi bi-dice-5"></i> Game Generator</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/checker"><i class="bi bi-search"></i> Code Checker</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-12 text-center mb-4">
+                <h1 class="text-white fw-bold mb-3">
+                    <i class="bi bi-dice-5"></i> Game Code Helper
+                </h1>
+                <p class="text-white-50">Get codes from real Kahoot games or test with the code checker</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card p-4">
+                    <div class="card-body">
+                        <div class="info-box">
+                            <h5><i class="bi bi-info-circle"></i> How to Get Joinable Game Codes</h5>
+                            <p class="mb-0">Valid Kahoot game codes can only come from actual games running on Kahoot.it. Here's how:</p>
+                        </div>
+
+                        <div class="step-box">
+                            <h6><i class="bi bi-1-circle-fill"></i> Auto-Generate Game Code</h6>
+                            <p class="mb-3">Click the button below to automatically access Kahoot and extract a game code:</p>
+                            <button class="btn btn-primary btn-lg w-100" type="button" id="generateBtn">
+                                <i class="bi bi-lightning-charge"></i> Generate Game Code
+                            </button>
+                            <small class="d-block mt-2 text-muted">This will access play.kahoot.it and extract an active game code</small>
+                        </div>
+
+                        <div class="step-box">
+                            <h6><i class="bi bi-2-circle-fill"></i> View Generated Code</h6>
+                            <div id="codeDisplayDiv" style="display: none;">
+                                <div class="alert alert-success">
+                                    <strong>Game PIN:</strong>
+                                    <div class="code-input text-center mt-3" id="codeDisplay" style="background: #f0f0f0; padding: 20px; border-radius: 8px;">
+                                        Loading...
+                                    </div>
+                                    <button class="btn btn-success mt-3 w-100" type="button" id="copyBtn">
+                                        <i class="bi bi-clipboard"></i> Copy Code
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="step-box">
+                            <h6><i class="bi bi-3-circle-fill"></i> Use with Your Bots</h6>
+                            <p class="mb-1">Once you have a valid code:</p>
+                            <ol>
+                                <li>Go back to <strong>Dashboard</strong></li>
+                                <li>Paste the code in "Kahoot Game PIN"</li>
+                                <li>Set number of bots and click "Start Bots"</li>
+                            </ol>
+                        </div>
+
+                        <div id="resultDiv"></div>
+
+                        <div class="step-box">
+                            <h6><i class="bi bi-zap-fill"></i> Flooder</h6>
+                            <p class="mb-3">Start endless games with 10 bots each:</p>
+                            <div class="endless-controls">
+                                <button class="btn btn-success btn-lg" type="button" id="startFlooder">
+                                    <i class="bi bi-lightning"></i> Start Flooder
+                                </button>
+                                <button class="btn btn-danger btn-lg" type="button" id="stopFlooder" style="display: none;">
+                                    <i class="bi bi-stop-circle"></i> Stop Flooder
+                                </button>
+                            </div>
+                            <div id="floodeListDiv" style="display: none;">
+                                <div class="codes-list" id="flooding-games">
+                                    <div class="text-center text-muted">
+                                        <small>Starting flooder...</small>
+                                    </div>
+                                </div>
+                                <small class="d-block mt-2 text-muted"><i class="bi bi-info-circle"></i> Each game has up to 10 bots. Games stay alive for 5 minutes.</small>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-4">
+                            <i class="bi bi-exclamation-triangle"></i> <strong>Note:</strong> The Code Checker can find valid existing game codes by checking millions of combinations. Valid codes only exist when games are actually running on Kahoot.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <a href="/checker" class="btn btn-outline-light ms-2">
+                        <i class="bi bi-search"></i> Go to Code Checker
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let generatedCode = null;
+        let floodeActive = false;
+        
+        document.getElementById('startFlooder').addEventListener('click', async () => {
+            floodeActive = true;
+            document.getElementById('startFlooder').style.display = 'none';
+            document.getElementById('stopFlooder').style.display = 'block';
+            document.getElementById('floodeListDiv').style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/start-flooder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    // Redirect to status page
+                    window.location.href = '/status';
+                }
+            } catch (error) {
+                console.log('Error starting flooder:', error);
+            }
+        });
+        
+        document.getElementById('stopFlooder').addEventListener('click', async () => {
+            floodeActive = false;
+            document.getElementById('startFlooder').style.display = 'block';
+            document.getElementById('stopFlooder').style.display = 'none';
+            
+            try {
+                await fetch('/api/stop-flooder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            } catch (error) {
+                console.log('Error stopping flooder:', error);
+            }
+        });
+        
+        async function monitorFlooding() {
+            while (floodeActive) {
+                try {
+                    const response = await fetch('/api/get-flooder-status');
+                    const data = await response.json();
+                    
+                    if (data.active && floodeActive) {
+                        updateFloddingList(data.games);
+                    }
+                } catch (error) {
+                    console.log('Error monitoring flooder:', error);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+        }
+        
+        function updateFloddingList(games) {
+            const list = document.getElementById('flooding-games');
+            
+            if (!games || games.length === 0) {
+                list.innerHTML = '<div class="text-center text-muted"><small>Starting games...</small></div>';
+                return;
+            }
+            
+            list.innerHTML = games.map((game, idx) => `
+                <div class="code-item">
+                    <div>
+                        <strong>${game.code}</strong><br>
+                        <small class="text-muted">🤖 ${game.bots}/10 bots</small>
+                    </div>
+                    <button class="code-copy-btn" onclick="copyCode('${game.code}')">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        function copyCode(code) {
+            navigator.clipboard.writeText(code);
+            alert('Code ' + code + ' copied to clipboard!');
+        }
+        
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('generateBtn');
+            const codeDisplayDiv = document.getElementById('codeDisplayDiv');
+            const resultDiv = document.getElementById('resultDiv');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+            resultDiv.innerHTML = '<div class="mt-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Generating...</span></div></div>';
+            
+            try {
+                const response = await fetch('/api/generate-game', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    generatedCode = data.pin;
+                    document.getElementById('codeDisplay').textContent = data.pin;
+                    codeDisplayDiv.style.display = 'block';
+                    resultDiv.innerHTML = '';
+                    btn.innerHTML = '<i class="bi bi-lightning-charge"></i> Generate Game Code';
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger mt-3"><i class="bi bi-exclamation-circle"></i> ${data.error || 'Failed to generate code'}</div>`;
+                    btn.innerHTML = '<i class="bi bi-lightning-charge"></i> Generate Game Code';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="alert alert-danger mt-3"><i class="bi bi-exclamation-circle"></i> Error: ${error.message}</div>`;
+                btn.innerHTML = '<i class="bi bi-lightning-charge"></i> Generate Game Code';
+            }
+            
+            btn.disabled = false;
+        });
+        
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            if (generatedCode) {
+                navigator.clipboard.writeText(generatedCode);
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

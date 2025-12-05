@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Account Creator - Multi-App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1DB954 0%, #1ed760 25%, #FF6B6B 50%, #FF8E72 75%, #050a05 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+        .navbar {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(29, 185, 84, 0.1) 50%, rgba(0, 0, 0, 0.95) 100%);
+            backdrop-filter: blur(20px);
+            border-bottom: 2px solid rgba(255, 107, 107, 0.4);
+        }
+        .navbar-brand {
+            background: linear-gradient(135deg, #1ed760 0%, #FF6B6B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+        .container-main {
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1ed760 0%, #FF6B6B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+        }
+        .card {
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 80px rgba(30, 215, 96, 0.4);
+        }
+        .card-header {
+            background: rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(30, 215, 96, 0.4);
+            padding: 25px;
+            border-radius: 18px 18px 0 0;
+        }
+        .card h4 {
+            color: #1ed760;
+            font-weight: 700;
+        }
+        .btn-app {
+            background: #0a0a0a;
+            border: 2px solid #FF6B6B;
+            color: #FF6B6B;
+            font-weight: 800;
+            padding: 16px 32px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        .btn-app:hover {
+            background: #FF6B6B;
+            color: #000;
+            transform: translateY(-3px);
+        }
+        .btn-app.active {
+            background: #FF6B6B;
+            color: #000;
+        }
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .progress {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #FF6B6B, #FF8E72);
+        }
+        .account-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #FF6B6B;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/music"><i class="bi bi-music-note-beamed"></i> Music Creator</a>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-arrow-left"></i> Back to Launcher</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container container-main">
+        <h1 class="page-title mb-4"><i class="bi bi-music-note-beamed"></i> Multi-App Music Account Creator</h1>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">Choose Music Platform</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="app-grid mb-4">
+                            <button class="btn btn-app active" onclick="selectApp('spotify')" id="btn-spotify">
+                                <i class="bi bi-spotify"></i> Spotify
+                            </button>
+                            <button class="btn btn-app" onclick="selectApp('apple')" id="btn-apple">
+                                <i class="bi bi-music-note"></i> Apple Music
+                            </button>
+                            <button class="btn btn-app" onclick="selectApp('youtube')" id="btn-youtube">
+                                <i class="bi bi-youtube"></i> YouTube Music
+                            </button>
+                            <button class="btn btn-app" onclick="selectApp('tidal')" id="btn-tidal">
+                                <i class="bi bi-disc"></i> Tidal
+                            </button>
+                        </div>
+
+                        <div id="appSelector" class="mb-4">
+                            <label class="form-label"><i class="bi bi-123"></i> Number of Accounts</label>
+                            <input type="number" class="form-control form-control-lg" id="accountCount" value="5" min="1" max="50">
+                            <small class="text-muted">Create up to 50 accounts at once</small>
+                        </div>
+
+                        <button class="btn btn-app w-100 btn-lg" onclick="startCreation()">
+                            <i class="bi bi-lightning-charge"></i> Start Creation
+                        </button>
+
+                        <div id="progressSection" style="display: none;" class="mt-5">
+                            <div class="mb-4">
+                                <label class="form-label">Progress</label>
+                                <div class="progress">
+                                    <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+                                </div>
+                                <p class="mt-3 text-center" id="progressText" style="font-size: 1.2rem; font-weight: 700; color: #FF6B6B;">0%</p>
+                            </div>
+                        </div>
+
+                        <div id="accountsList" style="display: none;" class="mt-5">
+                            <div style="height: 1px; background: rgba(255, 107, 107, 0.1); margin: 25px 0;"></div>
+                            <h5><i class="bi bi-check-circle"></i> Created Accounts</h5>
+                            <div id="accountsContainer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="bi bi-info-circle"></i> Info</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <p><strong>Spotify:</strong> Direct web signup</p>
+                        <p><strong>Apple Music:</strong> Apple ID creation</p>
+                        <p><strong>YouTube Music:</strong> Google account creation</p>
+                        <p><strong>Tidal:</strong> Email-based signup</p>
+                        <hr>
+                        <button class="btn btn-outline-light w-100" onclick="loadAllAccounts()">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh All
+                        </button>
+                        <button class="btn btn-outline-light w-100 mt-2" onclick="downloadAccounts()">
+                            <i class="bi bi-download"></i> Download All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentApp = 'spotify';
+        let currentJobId = null;
+
+        function selectApp(app) {
+            currentApp = app;
+            document.querySelectorAll('.btn-app').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + (app === 'apple' ? 'apple' : app === 'youtube' ? 'youtube' : app === 'tidal' ? 'tidal' : 'spotify')).classList.add('active');
+        }
+
+        async function startCreation() {
+            const count = parseInt(document.getElementById('accountCount').value);
+            if (!count || count < 1) {
+                alert('Enter valid account count');
+                return;
+            }
+
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('accountsList').style.display = 'block';
+
+            try {
+                let endpoint = '/music/api/create-spotify';
+                if (currentApp === 'apple') endpoint = '/music/api/create-apple-music';
+                else if (currentApp === 'youtube') endpoint = '/music/api/create-youtube-music';
+                else if (currentApp === 'tidal') endpoint = '/music/api/create-tidal';
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: count })
+                });
+
+                const data = await response.json();
+                currentJobId = data.job_id;
+
+                const pollInterval = setInterval(async () => {
+                    try {
+                        const statusResp = await fetch(`/music/api/job-status/${currentJobId}`);
+                        if (!statusResp.ok) return;
+                        const status = await statusResp.json();
+
+                        const progress = Math.round((status.created / status.total) * 100);
+                        document.getElementById('progressBar').style.width = progress + '%';
+                        document.getElementById('progressText').textContent = `${status.created}/${status.total}`;
+
+                        if (status.accounts && status.accounts.length > 0) {
+                            const container = document.getElementById('accountsContainer');
+                            container.innerHTML = status.accounts.map(acc => `
+                                <div class="account-card">
+                                    <code>${acc.email}</code><br>
+                                    <small style="color: rgba(255,255,255,0.6);">Pass: ${acc.password.substring(0,8)}***</small>
+                                </div>
+                            `).join('');
+                        }
+
+                        if (status.status === 'complete') {
+                            clearInterval(pollInterval);
+                            loadAllAccounts();
+                        }
+                    } catch (e) { }
+                }, 1000);
+            } catch (e) {
+                alert('Error starting creation');
+            }
+        }
+
+        async function loadAllAccounts() {
+            try {
+                const response = await fetch('/music/api/accounts');
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`✅ Total accounts: ${data.total}`);
+                }
+            } catch (e) { }
+        }
+
+        async function downloadAccounts() {
+            try {
+                const response = await fetch('/music/api/accounts');
+                const data = await response.json();
+                const content = data.accounts.map(a => `${a.app}: ${a.email}:${a.password}`).join('\n');
+                const element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+                element.setAttribute('download', 'music_accounts.txt');
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            } catch (e) { }
+        }
+
+        loadAllAccounts();
+    </script>
+</body>
+</html>

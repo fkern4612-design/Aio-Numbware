@@ -1,0 +1,12 @@
+flask
+selenium
+webdriver-manager
+pillow
+requests
+rich
+webdriver-manager
+fake-useragent
+faker
+undetected-chromedriver
+undetected-chromedriver
+capsolver
